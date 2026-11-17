@@ -8,6 +8,26 @@ type Note = {
   created_at: string
 }
 
+type Resource = {
+  id: number
+  title: string
+  technology: string
+  level: string
+  description: string
+  url: string
+}
+
+const technologies = [
+  'All',
+  'Linux',
+  'AWS',
+  'Docker',
+  'Kubernetes',
+  'Terraform',
+  'Jenkins',
+  'Git',
+]
+
 function App() {
   const [notes, setNotes] = useState<Note[]>([])
   const [title, setTitle] = useState('')
@@ -17,6 +37,12 @@ function App() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  const [resources, setResources] = useState<Resource[]>([])
+  const [resourceSearch, setResourceSearch] = useState('')
+  const [technology, setTechnology] = useState('All')
+  const [resourceLoading, setResourceLoading] = useState(false)
+  const [resourceError, setResourceError] = useState('')
 
   const loadNotes = useCallback(async () => {
     setLoading(true)
@@ -38,9 +64,46 @@ function App() {
     }
   }, [])
 
+  const loadResources = useCallback(async () => {
+    setResourceLoading(true)
+    setResourceError('')
+
+    try {
+      const params = new URLSearchParams()
+
+      if (technology !== 'All') {
+        params.set('technology', technology)
+      }
+
+      if (resourceSearch.trim()) {
+        params.set('search', resourceSearch.trim())
+      }
+
+      const query = params.toString()
+      const response = await fetch(`/api/resources${query ? `?${query}` : ''}`)
+
+      if (!response.ok) {
+        throw new Error('Could not load learning resources.')
+      }
+
+      const data: { count: number; resources: Resource[] } =
+        await response.json()
+
+      setResources(data.resources)
+    } catch {
+      setResourceError('Unable to load resources. Please try again.')
+    } finally {
+      setResourceLoading(false)
+    }
+  }, [technology, resourceSearch])
+
   useEffect(() => {
     void loadNotes()
   }, [loadNotes])
+
+  useEffect(() => {
+    void loadResources()
+  }, [loadResources])
 
   const filteredNotes = useMemo(() => {
     const query = search.toLowerCase().trim()
@@ -110,6 +173,9 @@ function App() {
           <a className="nav-link active" href="#dashboard">
             <span>▦</span> Dashboard
           </a>
+          <a className="nav-link" href="#resource-finder">
+            <span>⌕</span> Resource Finder
+          </a>
           <a className="nav-link" href="#create-note">
             <span>＋</span> Create note
           </a>
@@ -121,7 +187,7 @@ function App() {
         <div className="sidebar-bottom">
           <div className="status-dot" />
           <span>LearnLens API workspace</span>
-          <small>Version 1.0.0</small>
+          <small>Version 1.1.0</small>
         </div>
       </aside>
 
@@ -139,8 +205,8 @@ function App() {
             <p className="welcome-label">WELCOME TO LEARNLENS AI</p>
             <h2>Turn what you learn into knowledge.</h2>
             <p className="welcome-description">
-              Save your ideas, organize your learning, and keep your developer
-              knowledge in one place.
+              Discover learning resources, save your ideas, and organize your
+              developer knowledge in one place.
             </p>
           </div>
           <div className="welcome-art" aria-hidden="true">
@@ -168,10 +234,90 @@ function App() {
           <div className="stat-card">
             <span className="stat-icon orange">⚡</span>
             <div>
-              <p>Knowledge space</p>
-              <strong>Active</strong>
+              <p>Learning resources</p>
+              <strong>{resources.length} available</strong>
             </div>
           </div>
+        </section>
+
+        <section className="panel resource-panel" id="resource-finder">
+          <div className="panel-heading">
+            <div>
+              <p className="eyebrow">LEARN SOMETHING NEW</p>
+              <h3>Learning Resource Finder</h3>
+            </div>
+            <span className="heading-icon">⌕</span>
+          </div>
+
+          <p className="resource-intro">
+            Explore curated documentation and tutorials for popular DevOps
+            technologies.
+          </p>
+
+          <div className="resource-search">
+            <span>⌕</span>
+            <input
+              type="search"
+              placeholder="Search resources or technologies..."
+              value={resourceSearch}
+              onChange={(event) => setResourceSearch(event.target.value)}
+            />
+          </div>
+
+          <div className="technology-filters" aria-label="Filter by technology">
+            {technologies.map((item) => (
+              <button
+                type="button"
+                key={item}
+                className={`technology-filter ${technology === item ? 'selected' : ''}`}
+                onClick={() => setTechnology(item)}
+                aria-pressed={technology === item}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          {resourceError && (
+            <p className="message error-message">{resourceError}</p>
+          )}
+
+          {resourceLoading ? (
+            <div className="empty-state">Loading learning resources...</div>
+          ) : resources.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">⌕</span>
+              <h4>No resources found</h4>
+              <p>Try another keyword or technology.</p>
+            </div>
+          ) : (
+            <div className="resource-grid">
+              {resources.map((resource) => (
+                <article className="resource-card" key={resource.id}>
+                  <div className="resource-card-top">
+                    <span className="resource-technology">
+                      {resource.technology}
+                    </span>
+                    <span className="resource-level">{resource.level}</span>
+                  </div>
+                  <h4>{resource.title}</h4>
+                  <p>{resource.description}</p>
+                  <a
+                    className="resource-link"
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Explore resource <span>↗</span>
+                  </a>
+                </article>
+              ))}
+            </div>
+          )}
+
+          <p className="collection-footer">
+            Showing {resources.length} learning resources
+          </p>
         </section>
 
         <section className="workspace-grid">

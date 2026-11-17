@@ -27,3 +27,6 @@ venv/
 
 # Logs
 *.log
+
+# Local backup files
+*.backup
