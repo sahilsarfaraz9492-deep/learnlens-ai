@@ -1,5 +1,6 @@
 # Terraform
 **/.terraform/*
+.terraform/
 *.tfstate
 *.tfstate.*
 *.tfvars
@@ -7,8 +8,6 @@
 *.plan
 crash.log
 crash.*.log
-
-# Terraform override files
 override.tf
 override.tf.json
 *_override.tf
@@ -27,33 +26,18 @@ override.tf.json
 
 # Logs
 *.log
-EOFcat > .gitignore <<'EOF'
-# Terraform
-**/.terraform/*
-*.tfstate
-*.tfstate.*
-*.tfvars
-*.tfvars.json
-*.plan
-crash.log
-crash.*.log
 
-# Terraform override files
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# Node.js
+node_modules/
+frontend/dist/
+npm-debug.log*
 
-# Secrets and keys
-*.pem
-*.key
-.env
-.env.*
-!.env.example
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
 
-# Ansible
-.vault_pass
-*.retry
-
-# Logs
-*.log
+# Local backup files
+*.backup
