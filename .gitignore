@@ -1,0 +1,59 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.plan
+crash.log
+crash.*.log
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Secrets and keys
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Ansible
+.vault_pass
+*.retry
+
+# Logs
+*.log
+EOFcat > .gitignore <<'EOF'
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.plan
+crash.log
+crash.*.log
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Secrets and keys
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+
+# Ansible
+.vault_pass
+*.retry
+
+# Logs
+*.log
