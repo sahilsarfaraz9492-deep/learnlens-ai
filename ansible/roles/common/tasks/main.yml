@@ -1,0 +1,23 @@
+---
+- name: Update Ubuntu package cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install common system packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - git
+      - python3
+    state: present
+
+- name: Display server hostname
+  ansible.builtin.command: hostname
+  register: server_hostname
+  changed_when: false
+
+- name: Show server hostname
+  ansible.builtin.debug:
+    msg: "Managing server: {{ server_hostname.stdout }}"

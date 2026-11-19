@@ -1,0 +1,9 @@
+---
+- name: Configure LearnLens AI application servers
+  hosts: app_servers
+  become: true
+
+  roles:
+    - common
+    - docker
+    - deployment

@@ -1,0 +1,12 @@
+---
+- name: Ensure LearnLens AI application directory exists
+  ansible.builtin.file:
+    path: /home/ubuntu/learnlens-ai
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+
+- name: Display deployment directory
+  ansible.builtin.debug:
+    msg: "LearnLens AI deployment directory is ready."
