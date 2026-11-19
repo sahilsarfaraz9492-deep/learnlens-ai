@@ -41,3 +41,13 @@ venv/
 
 # Local backup files
 *.backup
+
+# Kubernetes credentials and secrets
+.kube/
+kubeconfig
+*-secret.yaml
+*-secret.yml
+*-secrets.yaml
+*-secrets.yml
+secrets*.yaml
+secrets*.yml
