@@ -1,6 +1,12 @@
-# LearnLens AI
+# LearnLens AI — End-to-End DevOps Project
 
-LearnLens AI is a developer knowledge management and learning platform. It helps developers discover technical documentation, explore DevOps learning resources, and save personal learning notes.
+An end-to-end DevOps implementation of a developer learning resource platform, deployed on AWS using Docker, Terraform, Ansible, Jenkins, Amazon EKS, Prometheus, and Grafana.
+
+## Project Overview
+
+LearnLens AI helps developers discover technical learning resources, explore documentation, and save personal learning notes.
+
+This project demonstrates the deployment and automation of a full-stack application using modern DevOps practices, including infrastructure as code, configuration management, CI/CD, containerization, Kubernetes orchestration, and monitoring.
 
 ## Application Features
 
@@ -8,89 +14,312 @@ LearnLens AI is a developer knowledge management and learning platform. It helps
 - Learning Resource Finder
 - Technology filters for Linux, AWS, Docker, Kubernetes, Terraform, Jenkins, and Git
 - Search learning resources by keyword
-- Links to official documentation and tutorials
+- Links to technical documentation and tutorials
 - Create and view personal learning notes
-- PostgreSQL database for persistent note storage
-- Redis caching for notes
+- PostgreSQL database for persistent storage
+- Redis service integration
 - Backend health-check endpoint
 
 ## Technology Stack
 
-### Application
-- React
-- TypeScript
-- Python
-- FastAPI
+| Category | Technologies |
+|---|---|
+| Frontend | React, TypeScript |
+| Backend | Python, FastAPI |
+| Database | PostgreSQL, pgvector image |
+| Cache / Supporting Service | Redis |
+| Web Server | Nginx |
+| Containerization | Docker, Docker Compose |
+| Cloud | AWS EC2, VPC, EKS, ECR |
+| Infrastructure as Code | Terraform |
+| Configuration Management | Ansible |
+| CI/CD | Jenkins |
+| Orchestration | Kubernetes, Amazon EKS |
+| Monitoring | Prometheus, Grafana |
+| Version Control | Git, GitHub |
 
-### Data Storage
-- PostgreSQL
-- pgvector-enabled PostgreSQL image
-- Redis
+## Architecture
 
-### Containerization
+```text
+                    Developer
+                        |
+                        v
+                  GitHub Repository
+                        |
+                        v
+                  Jenkins CI/CD
+                        |
+             +----------+----------+
+             |                     |
+             v                     v
+       Ansible Setup          AWS EKS Deployment
+             |                     |
+             v                     v
+        AWS EC2 Server        Kubernetes Cluster
+             |                     |
+       Docker Compose         +----+----------------+
+             |                |    |       |        |
+             v                v    v       v        v
+        Application          Frontend Backend PostgreSQL Redis
+                              |
+                              v
+                        AWS LoadBalancer
+
+              Amazon ECR stores container images
+
+              Prometheus --> Metrics Collection
+                    |
+                    v
+                 Grafana
+              Monitoring Dashboard
+
+             Terraform --> Infrastructure
+```
+
+## DevOps Implementation
+
+### 1. Infrastructure as Code — Terraform
+
+- Created AWS infrastructure configurations using Terraform.
+- Managed infrastructure through reusable configuration files.
+- Used Terraform to provision and manage AWS resources.
+
+### 2. Configuration Management — Ansible
+
+- Created Ansible inventory and playbooks.
+- Organized configuration tasks using roles.
+- Automated server configuration and application setup.
+- Verified connectivity and configuration through Jenkins.
+
+### 3. Containerization — Docker
+
+- Containerized the frontend and backend.
+- Configured PostgreSQL and Redis services.
+- Used Docker Compose to run the application.
+- Used Nginx to serve the frontend.
+
+### 4. CI/CD — Jenkins
+
+Implemented a Jenkins pipeline connected to the GitHub repository.
+
+Pipeline stages:
+
+1. Checkout — Retrieve source code from GitHub.
+2. Ansible Connectivity Test — Verify server connectivity.
+3. Ansible Configuration — Apply server configuration.
+4. Deploy to EC2 — Deploy the application using Docker Compose.
+5. Deploy to Amazon EKS — Apply Kubernetes manifests and verify deployment health.
+
+The pipeline completed successfully, with all five stages passing.
+
+### 5. Container Registry — Amazon ECR
+
+- Created separate ECR repositories for frontend and backend images.
+- Built and pushed application images to Amazon ECR.
+- Configured Kubernetes deployments to use the ECR images.
+
+### 6. Container Orchestration — Amazon EKS
+
+Deployed the application to an Amazon EKS cluster.
+
+Kubernetes resources include:
+
+- Frontend Deployment and LoadBalancer Service
+- Backend Deployment and ClusterIP Service
+- PostgreSQL Deployment and Service
+- Redis Deployment and Service
+- PersistentVolumeClaim for PostgreSQL
+- GP3 StorageClass using the AWS EBS CSI driver
+
+PostgreSQL persistent storage was verified by creating a test note and confirming that it remained available after refreshing the application.
+
+### 7. Monitoring — Prometheus and Grafana
+
+Implemented monitoring inside the EKS cluster.
+
+**Prometheus**
+- Collects Kubernetes and node metrics.
+- Scrapes Kubernetes API server and node targets.
+- Uses Node Exporter and Kube State Metrics.
+
+**Grafana**
+- Connected to Prometheus as its data source.
+- Imported a Kubernetes monitoring dashboard.
+- Displays cluster, namespace, node, and resource metrics.
+
+Prometheus targets were verified healthy, and both EKS nodes were reporting metrics.
+
+## Repository Structure
+
+```text
+LearnLens-AI/
+│
+├── ansible/
+│   ├── inventory/
+│   ├── playbooks/
+│   └── roles/
+│
+├── backend/
+│
+├── frontend/
+│
+├── k8s/
+│   ├── backend.yaml
+│   ├── frontend.yaml
+│   ├── gp3-storageclass.yaml
+│   ├── postgres-pvc.yaml
+│   ├── postgres.yaml
+│   └── redis.yaml
+│
+├── terraform/
+│
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Jenkinsfile
+└── README.md
+```
+
+## Local Application Setup
+
+### Prerequisites
+
+- Git
 - Docker
 - Docker Compose
-- Nginx
 
-### Cloud Infrastructure
-- AWS EC2
-- AWS VPC and networking
-- Terraform infrastructure configuration
+### Clone the Repository
 
-## Current Deployment
+```bash
+git clone https://github.com/sahilsarfaraz9492-deep/learnlens-ai.git
 
-The application is deployed on an Ubuntu EC2 instance in AWS using Docker Compose.
+cd learnlens-ai
+```
 
-Application URL:
-http://44.193.197.206
+### Configure Environment Variables
 
-Health-check endpoint:
-http://44.193.197.206/api/health
+```bash
+cp .env.example .env
+```
 
-## Run the Application
+Update the environment variables with your own database credentials and configuration.
 
-Clone the repository:
+### Start the Application
 
-    git clone https://github.com/sahilsarfaraz9492-deep/learnlens-ai.git
-    cd learnlens-ai
+```bash
+docker compose up -d --build
+```
 
-Create your environment file:
+### Verify Containers
 
-    cp .env.example .env
+```bash
+docker compose ps
+```
 
-Update .env with your own secure database credentials.
+### Test Backend Health
 
-Start the application:
+```bash
+curl http://localhost/api/health
+```
 
-    docker compose up -d --build
+Expected health response:
 
-Check running containers:
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "redis": "connected",
+  "application": "LearnLens AI"
+}
+```
 
-    docker compose ps
+## Kubernetes Deployment
 
-Check application health:
+The Kubernetes manifests are available in the `k8s/` directory.
 
-    curl http://localhost/api/health
+Before deployment:
 
-## DevOps Roadmap
+1. Configure access to your Amazon EKS cluster.
+2. Create the `learnlens` namespace.
+3. Create the required `learnlens-db-secret` Kubernetes Secret.
+4. Ensure the ECR images are available and the manifest image references are correct.
 
-The following stages are planned or in progress. They are not all implemented yet.
+Apply the manifests:
 
-- [x] Initial full-stack application
-- [x] Docker containerization
-- [x] Docker Compose deployment
-- [x] AWS EC2 deployment
-- [x] Learning Resource Finder
-- [x] PostgreSQL persistence and Redis caching
-- [ ] Jenkins CI/CD pipeline
-- [ ] Amazon ECR image publishing
-- [ ] Automated deployment pipeline
-- [ ] Ansible configuration management
-- [ ] Kubernetes deployment
-- [ ] Prometheus and Grafana monitoring
-- [ ] Centralized logging
-- [ ] Final end-to-end testing and documentation
+```bash
+kubectl apply -f k8s/
+```
 
-## Project Status
+Check deployments:
 
-The initial application and AWS EC2 deployment are operational. The project is being extended into an end-to-end DevOps automation project.
+```bash
+kubectl get deployments -n learnlens
+```
+
+Check pods:
+
+```bash
+kubectl get pods -n learnlens
+```
+
+Check services:
+
+```bash
+kubectl get services -n learnlens
+```
+
+**Security:** Never commit `.env`, Kubernetes Secrets, passwords, AWS credentials, private keys, or Terraform state files to GitHub.
+
+## Project Verification
+
+The following checks were successfully completed:
+
+| Verification | Result |
+|---|---|
+| Jenkins CI/CD pipeline | SUCCESS |
+| Ansible connectivity | Passed |
+| Ansible configuration | Passed |
+| EC2 application deployment | Passed |
+| Amazon EKS deployment | Passed |
+| Frontend HTTP response | 200 OK |
+| Backend health check | Healthy |
+| PostgreSQL connection | Connected |
+| Redis connection | Connected |
+| EKS worker nodes | 2/2 Ready |
+| Application pods | 4/4 Running |
+| Prometheus targets | Healthy |
+| Grafana dashboard | Metrics visible |
+
+## Key DevOps Skills Demonstrated
+
+- Linux and server administration
+- Git and GitHub
+- AWS infrastructure
+- Terraform
+- Ansible
+- Docker and Docker Compose
+- Jenkins CI/CD
+- Amazon ECR
+- Kubernetes and Amazon EKS
+- Persistent storage with AWS EBS CSI
+- Prometheus monitoring
+- Grafana dashboards
+- Application deployment and troubleshooting
+
+## Important Cost Consideration
+
+The Amazon EKS environment was created for project demonstration and testing. AWS resources such as EC2 worker nodes, EBS volumes, and LoadBalancers can incur charges.
+
+Destroy temporary infrastructure after completing the demonstration. Preserve any resources you still need, and verify that associated AWS resources have been cleaned up.
+
+## Author
+
+**Muhammad Sahil Sarfaraz**
+
+DevOps Engineer Aspirant
+
+GitHub: https://github.com/sahilsarfaraz9492-deep
+
+---
+
+*This is a hands-on DevOps portfolio project demonstrating the deployment, automation, orchestration, and monitoring of a full-stack application on AWS.*
