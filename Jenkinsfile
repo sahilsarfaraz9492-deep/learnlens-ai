@@ -12,6 +12,24 @@ pipeline {
             }
         }
 
+        stage('Ansible Connectivity Test') {
+            steps {
+                sshagent(credentials: ['learnlens-deploy-key']) {
+                    sh '''
+                        set -e
+                        cd ansible
+
+                        export ANSIBLE_HOST_KEY_CHECKING=False
+
+                        echo "Testing Ansible connectivity..."
+                        ansible app_servers -m ping
+
+                        echo "Ansible connectivity successful"
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to EC2') {
             steps {
                 sshagent(credentials: ['learnlens-deploy-key']) {
