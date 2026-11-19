@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -18,13 +19,22 @@ pipeline {
                     sh '''
                         set -e
                         cd ansible
+                        export ANSIBLE_HOST_KEY_CHECKING=False
+                        ansible app_servers -m ping
+                    '''
+                }
+            }
+        }
 
+        stage('Ansible Configuration') {
+            steps {
+                sshagent(credentials: ['learnlens-deploy-key']) {
+                    sh '''
+                        set -e
+                        cd ansible
                         export ANSIBLE_HOST_KEY_CHECKING=False
 
-                        echo "Testing Ansible connectivity..."
-                        ansible app_servers -m ping
-
-                        echo "Ansible connectivity successful"
+                        ansible-playbook playbooks/site.yml
                     '''
                 }
             }
