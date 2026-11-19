@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_SERVER = 'ubuntu@184.195.162.192'
+        APP_SERVER = 'ubuntu@52.3.236.206'
     }
 
     stages {
